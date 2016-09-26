@@ -15,7 +15,7 @@ module.exports = {
         loaders: [
             {
                 test   : /\.js$/,
-                include: [path.resolve('src'), path.resolve('node_modules/bee-core')],
+                include: [path.resolve('src')],
                 loader : 'babel'
             }
         ]
