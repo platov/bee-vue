@@ -1,6 +1,3 @@
-import $ from 'jquery';
-import Vue from 'vue';
-
 import Chrome from './ee.chrome';
 
 export default Vue.component('ee-placeholder', Chrome.extend({

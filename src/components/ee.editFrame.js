@@ -1,8 +1,11 @@
-import _ from 'lodash';
-import $ from 'jquery';
-import Vue from 'vue';
+import _ from "lodash/wrapperLodash";
+
+import mixin from 'lodash/mixin';
+import find from 'lodash/find';
 
 import Chrome from './ee.chrome';
+
+mixin(_, {find, mixin});
 
 export default Vue.component('ee-edit-frame', Chrome.extend({
     name: 'EditFrame',

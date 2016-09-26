@@ -1,9 +1,20 @@
-import _ from 'lodash';
-import $ from 'jquery';
-import Vue from 'vue';
-import beeCore from 'bee-core/src';
+import _ from "lodash/wrapperLodash";
+
+import mixin from "lodash/mixin";
+import reduce from 'lodash/reduce';
+import each from 'lodash/each';
+import bind from 'lodash/bind';
+import find from 'lodash/find';
+import flatten from 'lodash/flatten';
+import chain from 'lodash/chain';
+import value from "lodash/value";
+
+import beeCore from 'bee-core';
+
 
 let mediator = beeCore.mediator;
+
+mixin(_, {reduce, each, bind, find, flatten, chain, value, mixin});
 
 export default Vue.component('ee-chrome', {
     name: 'Chrome',
@@ -130,7 +141,7 @@ export default Vue.component('ee-chrome', {
 
         this.syncMediator({
             namespace: 'chromeControls',
-            events: ['renderCommandTag']
+            events   : ['renderCommandTag']
         });
     },
 
@@ -140,6 +151,6 @@ export default Vue.component('ee-chrome', {
         }
 
         // Unsubscribe before this VM destroy for prevent memory leak
-        _.chain(this._mediatorSubscribers).flatten().map(subscriber => mediator.removeListener(subscriber.event, subscriber.handler));
+        _.chain(this._mediatorSubscribers).flatten().each(subscriber => mediator.removeListener(subscriber.event, subscriber.handler));
     }
 });

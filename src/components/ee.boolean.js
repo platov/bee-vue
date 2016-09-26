@@ -1,8 +1,11 @@
-import _ from 'lodash';
-import $ from 'jquery';
-import Vue from 'vue';
+import _ from "lodash/wrapperLodash";
+
+import mixin from 'lodash/mixin';
+import isNaN from 'lodash/isNaN';
 
 import Field from './ee.field';
+
+mixin(_, {isNaN, mixin});
 
 export default Vue.component('ee-boolean', Field.extend({
     name: 'BooleanField',
@@ -37,7 +40,7 @@ export default Vue.component('ee-boolean', Field.extend({
 
             this.value = this.normalizeValue(value);
         },
-        
+
         normalizeValue: function (value) {
             value = parseInt(value);
 
