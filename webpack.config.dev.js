@@ -3,8 +3,6 @@ let path = require('path');
 module.exports = {
     context: path.resolve('src'),
 
-    devtool: 'inline-source-map',
-
     entry: ['./index'],
 
     output: {
