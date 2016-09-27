@@ -12,6 +12,11 @@ module.exports = {
         filename: 'bee-vue.js'
     },
 
+    externals: {
+        'jquery': 'jQuery',
+        'vue'   : 'Vue'
+    },
+
     module: {
         loaders: [
             {

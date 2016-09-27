@@ -1,3 +1,6 @@
+import Vue from 'vue';
+import $ from 'jquery';
+
 import Field from './ee.field';
 
 export default Vue.component('ee-text', Field.extend({

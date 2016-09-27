@@ -1,3 +1,5 @@
+import Vue from 'vue';
+import $ from 'jquery';
 import _ from "lodash/wrapperLodash";
 
 import mixin from "lodash/mixin";

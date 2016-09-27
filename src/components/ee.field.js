@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import Chrome from './ee.chrome';
 
 export default Vue.component('ee-field', Chrome.extend({

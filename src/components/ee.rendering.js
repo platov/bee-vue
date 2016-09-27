@@ -1,4 +1,7 @@
+import Vue from 'vue';
+import $ from 'jquery';
 import _ from "lodash/wrapperLodash";
+
 import mixin from 'lodash/mixin';
 import each from 'lodash/each';
 import Chrome from './ee.chrome';
