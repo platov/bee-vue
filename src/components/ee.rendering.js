@@ -52,15 +52,12 @@ export default Vue.component('ee-rendering', Chrome.extend({
                 return;
             }
 
-
-
             privateAttrs.push(attr);
 
             attrValue = decodeURIComponent(attr.value);
             match = attr.name.match(REGEX);
 
-            fieldType = match[1];
-            fieldName = match[2];
+            [fieldType, fieldName] = [match[1], match[2]];
 
             if (window.Sitecore && window.Sitecore.WebEditSettings && window.Sitecore.WebEditSettings.editing) {
                 $template = $(this.$options.template);

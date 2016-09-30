@@ -6,7 +6,7 @@ export default Vue.component('ee-placeholder', Chrome.extend({
     name: 'Placeholder',
 
     events: {
-        'insert': function () {
+        'insertRendering': function () {
             this.$compile(this.$el.parentNode);
 
             Sitecore.PageModes.ChromeManager.resetChromes();
@@ -26,7 +26,7 @@ export default Vue.component('ee-placeholder', Chrome.extend({
     created: function () {
         this.syncMediator({
             namespace: 'placeholder',
-            events: ['insert', 'move', 'pop', 'removeRendering']
+            events: ['insertRendering', 'moveRendering', 'popRendering', 'removeRendering']
         });
 
         this.getControlId = function () {
@@ -39,7 +39,7 @@ export default Vue.component('ee-placeholder', Chrome.extend({
             }
 
             if (!$openTag.is('code[chrometype=placeholder][kind=open]')) {
-                throw '[bee-vue]: Failed to determine own opening ChromeTag';
+                throw '[bee-vue]: Failed to determine own opening Chrome Tag';
             }
 
             return $openTag.attr('id').replace('_edit', '');

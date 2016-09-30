@@ -11,12 +11,13 @@ import flatten from 'lodash/flatten';
 import chain from 'lodash/chain';
 import value from "lodash/value";
 
-import beeCore from 'bee-core';
+import beeCore from 'bee-core/src';
 
 
 let mediator = beeCore.mediator;
 
 mixin(_, {reduce, each, bind, find, flatten, chain, value, mixin});
+
 
 export default Vue.component('ee-chrome', {
     name: 'Chrome',
