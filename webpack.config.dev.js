@@ -22,7 +22,15 @@ module.exports = {
             {
                 test   : /\.js$/,
                 include: [path.resolve('src')],
-                loader : 'babel'
+                loader : 'babel',
+                include: [
+                    path.resolve('src'),
+                    /bee-core\\src/
+                ],
+                query  : {
+                    presets: ['es2015'],
+                    plugins: ['transform-runtime']
+                }
             }
         ]
     }
