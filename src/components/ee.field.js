@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Chrome from './ee.chrome';
+import beeCore from 'bee-core/src';
 
 export default Vue.component('ee-field', Chrome.extend({
     name: 'Field',
@@ -25,7 +26,7 @@ export default Vue.component('ee-field', Chrome.extend({
     },
 
     created: function () {
-        if (!window.Sitecore || !window.Sitecore.WebEditSettings || !window.Sitecore.WebEditSettings.editing) {
+        if (!beeCore.isExperienceEditor) {
             return;
         }
 
@@ -43,7 +44,7 @@ export default Vue.component('ee-field', Chrome.extend({
                 console.warn(`[ee field mapping] Parent component already has field "${this.map}"`);
             }
 
-            if (window.Sitecore && window.Sitecore.WebEditSettings && window.Sitecore.WebEditSettings.editing) {
+            if (beeCore.isExperienceEditor) {
                 this.$watch('value', (value) => {
                     Vue.set(this.$parent.$data, this.map, value);
                 }, {immediate: true});

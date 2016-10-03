@@ -1,9 +1,7 @@
 import Vue from 'vue';
 import _ from "lodash/wrapperLodash";
-
 import mixin from 'lodash/mixin';
 import isNaN from 'lodash/isNaN';
-
 import TextField from './ee.text';
 
 mixin(_, {isNaN, mixin});

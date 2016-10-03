@@ -26,11 +26,13 @@ export default Vue.component('ee-placeholder', Chrome.extend({
     created: function () {
         this.syncMediator({
             namespace: 'placeholder',
-            events: ['insertRendering', 'moveRendering', 'popRendering', 'removeRendering']
+            events   : ['insertRendering', 'moveRendering', 'popRendering', 'removeRendering']
         });
+    },
 
-        this.getControlId = function () {
-            var $openTag;
+    methods: {
+        getControlId () {
+            let $openTag;
 
             if (this._isFragment) {
                 $openTag = $(this.$el.nextElementSibling);
@@ -43,6 +45,6 @@ export default Vue.component('ee-placeholder', Chrome.extend({
             }
 
             return $openTag.attr('id').replace('_edit', '');
-        };
+        }
     }
 }));

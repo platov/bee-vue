@@ -9,7 +9,9 @@ module.exports = {
 
     output: {
         path    : path.resolve('dist'),
-        filename: 'bee-vue.js'
+        filename: 'bee-vue.js',
+        library      : 'beeVue',
+        libraryTarget: 'umd'
     },
 
     externals: {
