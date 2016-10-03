@@ -1,6 +1,6 @@
 {
   "name": "bee-vue",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "dist/bee-vue.js",
   "files": [
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/platov/bee-vue#readme",
   "dependencies": {
-    "bee-core": ">=1.0.0",
+    "bee-core": ">=1.0.5",
     "lodash": ">=4.0.0",
     "jquery": ">=2.0.0",
     "vue": ">=1.0.0"
