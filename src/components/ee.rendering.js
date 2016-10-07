@@ -3,12 +3,13 @@ import $ from 'jquery';
 import _ from "lodash/wrapperLodash";
 import mixin from 'lodash/mixin';
 import each from 'lodash/each';
+import camelCase from 'lodash/camelCase';
 import Chrome from './ee.chrome';
 import beeCore from 'bee-core/src';
 
 const REGEX = /^(boolean|number|text|image)-(.+?)$/;
 
-mixin(_, {each, mixin});
+mixin(_, {each, mixin, camelCase});
 
 export default Vue.component('ee-rendering', Chrome.extend({
     name: 'Rendering',
@@ -45,7 +46,7 @@ export default Vue.component('ee-rendering', Chrome.extend({
             attrValue = decodeURIComponent(attr.value);
             match = attr.name.match(REGEX);
 
-            [fieldType, fieldName] = [match[1], match[2]];
+            [fieldType, fieldName] = [match[1], _.camelCase(match[2])];
 
             if (beeCore.isExperienceEditor) {
                 $template = $(this.$options.template);
