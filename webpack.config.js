@@ -22,7 +22,6 @@ module.exports = {
         loaders: [
             {
                 test   : /\.js$/,
-                include: [path.resolve('src')],
                 loader : 'babel',
                 include: [
                     path.resolve('src'),
