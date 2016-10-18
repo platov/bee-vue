@@ -18,15 +18,26 @@ mixin(_, {reduce, each, bind, find, flatten, chain, value, mixin});
 export default Vue.component('ee-chrome', {
     name: 'Chrome',
 
-    created: function () {
+    created () {
         this._chrome = void 0;
+        this._hasChromeTag = false;
         this._mediatorSubscribers = [];
 
-        if (!beeCore.isExperienceEditor) {
+        this.$once('chromeAvailable', function () {
+            this.$options.name = `${this._chrome.data.displayName} [${this._chrome.type.key()}]`;
+        });
+    },
+
+    ready () {
+        let chromeTag = this.getChromeTag();
+
+        this._hasChromeTag = !!(chromeTag && chromeTag.length);
+
+        if (!beeCore.isExperienceEditor || !this._hasChromeTag) {
             return;
         }
 
-        this.syncMediator({
+        this._syncMediator({
             namespace: 'chromeControls',
             events   : ['renderCommandTag']
         });
@@ -34,7 +45,7 @@ export default Vue.component('ee-chrome', {
         mediator.once('chromeManager:resetChromes', this._linkChromeInstance);
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
         if (!beeCore.isExperienceEditor) {
             return;
         }
@@ -74,34 +85,24 @@ export default Vue.component('ee-chrome', {
          * Link Chrome instance to current VM
          * @private
          * */
-        _linkChromeInstance() {
-            var chromes, controlId;
-
-            if (this._chrome) {
-                return
-            }
-
-            chromes = Sitecore.PageModes.ChromeManager.chromes();
-            controlId = this.getControlId();
-
-            this._chrome = _.find(chromes, c => c.type.controlId() === controlId);
+        _linkChromeInstance () {
+            this._chrome = this.getChromeInstance();
 
             if (!this._chrome) {
-                throw `[bee-vue]: can't find chrome`
+                throw `[bee-vue]: can't find chrome`;
             }
-
-            this.$options.name = `${this._chrome.data.displayName} [${this._chrome.type.key()}]`;
 
             this.$emit('chromeAvailable', this._chrome);
         },
 
         /**
          * Listen mediator for provided events and handle, only related to this chrome, events
+         * @private
          * @param {Object} data
          * @param {String} data.namespace
          * @param {Array} data.events
          * */
-        syncMediator (data) {
+        _syncMediator (data) {
             let self = this, events;
 
             events = _.reduce(data.events, (result, event) => {
@@ -130,21 +131,13 @@ export default Vue.component('ee-chrome', {
          * @return {string}
          * */
         getControlId () {
-            let $openTag,
-                chromeSelector = '.scWebEditInput, code[type="text/sitecore"][kind="open"]';
+            let chromeTag = this.getChromeTag();
 
-            if (this._isFragment) {
-                $openTag = $(this.getFragmentChild()).filter(chromeSelector);
-            } else {
-                $openTag = $(this.$el).children(chromeSelector);
+            if (!chromeTag || !chromeTag.length) {
+                return null;
             }
 
-
-            if (!$openTag.length) {
-                throw '[bee-vue]: Failed to determine own opening ChromeTag';
-            }
-
-            return $openTag.attr('id').replace('_edit', '');
+            return chromeTag.attr('id').replace('_edit', '');
         },
 
         /**
@@ -152,6 +145,36 @@ export default Vue.component('ee-chrome', {
          * */
         getFragmentChild () {
             return $(this._fragmentStart).nextUntil(this._fragmentEnd);
+        },
+
+        /**
+         * Try get chrome tag if it's available
+         * */
+        getChromeTag () {
+            let chromeSelector = '.scWebEditInput, code[type="text/sitecore"][kind="open"]',
+                chromeTag;
+
+            chromeTag =  this._isFragment
+                ? $(this.getFragmentChild()).filter(chromeSelector)
+                : $(this.$el).children(chromeSelector);
+
+            if(chromeTag.length !== 1) {
+                return null;
+            }
+
+            return chromeTag;
+        },
+
+        /**
+         * Get chrome instance
+         * */
+        getChromeInstance () {
+            var chromes, controlId;
+
+            chromes = Sitecore.PageModes.ChromeManager.chromes();
+            controlId = this.getControlId();
+
+            return _.find(chromes, c => c.type.controlId() === controlId);
         }
     }
 });

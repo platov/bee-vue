@@ -7,34 +7,46 @@ export default Vue.component('ee-text', Field.extend({
     name: 'TextField',
 
     events: {
-        'blur': function () {
+        'blur' () {
             this.fetchValue();
         }
     },
 
-    created: function () {
+    ready () {
+        if (!this._hasChromeTag) {
+            return;
+        }
+
         this.$watch('value', function () {
+            let value;
+
             if (!this._chrome) {
                 return;
             }
 
-            this._chrome.type.fieldValue.val(this.value);
+            value = this.deNormalizeValue(this.value);
+
+            this._chrome.type.fieldValue.val(value);
             this._chrome.type.refreshValue();
         });
     },
 
     methods: {
-        fetchValue: function () {
-            let fragmentChildNodes = [].slice.call(this._fragment.childNodes),
+        fetchValue () {
+            let fragmentChildNodes = this.getFragmentChild(),
                 value;
 
-            if (beeCore.isExperienceEditor) {
+            if (this._hasChromeTag) {
                 value = $(fragmentChildNodes).filter('.scWebEditInput').text();
             } else {
                 value = $(fragmentChildNodes).text().trim();
             }
 
-            this.value = value === '[No text in field]' ? '' : value;
+            this.value = this.normalizeValue(value);
+        },
+
+        normalizeValue (value) {
+            return value === '[No text in field]' ? '' : value;
         }
     }
 }));

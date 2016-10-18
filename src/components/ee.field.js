@@ -11,7 +11,7 @@ export default Vue.component('ee-field', Chrome.extend({
         }
     },
 
-    data: function () {
+    data () {
         return {
             value: void 0
         }
@@ -25,25 +25,17 @@ export default Vue.component('ee-field', Chrome.extend({
         }
     },
 
-    created: function () {
-        if (!beeCore.isExperienceEditor) {
-            return;
+    ready () {
+        if (this._hasChromeTag) {
+            this._syncMediator({
+                namespace: 'field',
+                events   : ['setModified', 'persist']
+            });
         }
 
-        this.syncMediator({
-            namespace: 'field',
-            events   : ['setModified', 'persist']
-        });
-    },
-
-    compiled: function () {
         this.fetchValue();
 
         if (this.map) {
-            if (this.$parent.hasOwnProperty(this.map)) {
-                console.warn(`[ee field mapping] Parent component already has field "${this.map}"`);
-            }
-
             if (beeCore.isExperienceEditor) {
                 this.$watch('value', (value) => {
                     Vue.set(this.$parent.$data, this.map, value);
@@ -59,12 +51,16 @@ export default Vue.component('ee-field', Chrome.extend({
     },
 
     methods: {
-        fetchValue: function () {
+        fetchValue () {
             console.warn('[ee.field] `fetchValue` method should be overridden!');
         },
 
-        normalizeValue: function (value) {
+        normalizeValue (value) {
             return value;
-        }
+        },
+
+        deNormalizeValue (value) {
+            return value;
+        },
     }
 }));

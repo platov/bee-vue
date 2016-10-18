@@ -14,25 +14,9 @@ mixin(_, {each, mixin, camelCase});
 export default Vue.component('ee-rendering', Chrome.extend({
     name: 'Rendering',
 
-    created: function () {
+    created () {
         let el = this.$options.el,
             privateAttrs = [];
-
-        this.syncMediator({
-            namespace: 'rendering',
-            events   : ['update', 'handleMessage']
-        });
-
-        /**
-         * Destroy Vue instance before Placeholder removes Child Rendering
-         * */
-        this.$parent.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
-            if (renderingChrome !== this._chrome) {
-                return;
-            }
-
-            this.$destroy();
-        });
 
         _.each(el.attributes, attr => {
             let match, fieldName, fieldType, htmlValue, $template, attrValue;
@@ -52,10 +36,20 @@ export default Vue.component('ee-rendering', Chrome.extend({
                 $template = $(this.$options.template);
                 htmlValue = $(`<div style="display: none;"><ee-${fieldType} map="${fieldName}">${attrValue}</ee-${fieldType}></div>`);
 
-                if ($template.children().length === 1) {
-                    $template.children().first().prepend(htmlValue);
+                if (this.$options.template instanceof DocumentFragment) {
+                    if ($template.children().length === 1) {
+                        $template.children().prepend(htmlValue);
+                    } else {
+                        $template.prepend(htmlValue);
+                    }
                 } else {
-                    $template.append(htmlValue);
+                    if ($template.length === 1) {
+                        $template.prepend(htmlValue);
+                    } else {
+                        $template = htmlValue.add($template);
+                    }
+
+                    this.$options.template = $('<div/>').append($template).html();
                 }
             } else {
                 attrValue = Vue.component(`ee-${fieldType}`).options.methods.normalizeValue(attrValue);
@@ -66,19 +60,38 @@ export default Vue.component('ee-rendering', Chrome.extend({
         _.each(privateAttrs, attr => el.removeAttributeNode(attr));
     },
 
-    methods: {
-        getControlId () {
-            let $openTag;
+    ready () {
+        if (!this._hasChromeTag) {
+            return;
+        }
 
-            $openTag = $(this.$el.previousElementSibling);
+        this._syncMediator({
+            namespace: 'rendering',
+            events   : ['update', 'handleMessage']
+        });
 
-            if (!$openTag.is('code[chrometype=rendering][kind=open]')) {
-                throw '[bee-vue]: Failed to determine own opening ChromeTag';
+        /**
+         * Destroy Vue instance before Placeholder removes Child Rendering
+         * */
+        this.$parent.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
+            if (renderingChrome !== this._chrome) {
+                return;
             }
 
-            return $openTag.attr('id').replace('_edit', '');
+            this.$destroy();
+        });
+    },
+
+    methods: {
+        getChromeTag () {
+            let chromeTag = $(this.$el.previousElementSibling);
+
+            if (!chromeTag.is('code[chrometype=rendering][kind=open]')) {
+                return null;
+            }
+
+            return chromeTag;
         }
     }
-}))
-;
+}));
 

@@ -6,13 +6,13 @@ export default Vue.component('ee-placeholder', Chrome.extend({
     name: 'Placeholder',
 
     events: {
-        'insertRendering': function () {
+        'insertRendering' () {
             this.$compile(this.$el.parentNode);
 
             Sitecore.PageModes.ChromeManager.resetChromes();
         },
 
-        'rendering:update': function (vm) {
+        'rendering:update' (vm) {
             vm.$destroy();
 
             Vue.nextTick(() => {
@@ -23,28 +23,31 @@ export default Vue.component('ee-placeholder', Chrome.extend({
         }
     },
 
-    created: function () {
-        this.syncMediator({
+    ready () {
+        if (!this._hasChromeTag) {
+            return;
+        }
+
+        this._syncMediator({
             namespace: 'placeholder',
             events   : ['insertRendering', 'moveRendering', 'popRendering', 'removeRendering']
         });
     },
 
     methods: {
-        getControlId () {
-            let $openTag;
+        getChromeTag(){
+            let chromeSelector = 'code[chrometype=placeholder][kind=open]',
+                chromeTag;
 
-            if (this._isFragment) {
-                $openTag = $(this.$el.nextElementSibling);
-            } else {
-                $openTag = $(this.$el).children(':first');
+            chromeTag = this._isFragment
+                ? $(this.$el).next(chromeSelector)
+                : $(this.$el).children(`${chromeSelector}:first-child`);
+
+            if(chromeTag.length !== 1) {
+                return null;
             }
 
-            if (!$openTag.is('code[chrometype=placeholder][kind=open]')) {
-                throw '[bee-vue]: Failed to determine own opening Chrome Tag';
-            }
-
-            return $openTag.attr('id').replace('_edit', '');
+            return chromeTag;
         }
     }
 }));
