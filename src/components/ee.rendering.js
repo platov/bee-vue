@@ -4,60 +4,26 @@ import _ from "lodash/wrapperLodash";
 import mixin from 'lodash/mixin';
 import each from 'lodash/each';
 import camelCase from 'lodash/camelCase';
+import filter from 'lodash/filter';
+import map from 'lodash/map';
 import Chrome from './ee.chrome';
 import beeCore from 'bee-core/src';
 
 const REGEX = /^(boolean|number|text|image)-(.+?)$/;
 
-mixin(_, {each, mixin, camelCase});
+mixin(_, {each, mixin, camelCase, filter, map});
 
 export default Vue.component('ee-rendering', Chrome.extend({
     name: 'Rendering',
 
     created () {
-        let el = this.$options.el,
-            privateAttrs = [];
+        this._inlineChromeTags = [];
 
-        _.each(el.attributes, attr => {
-            let match, fieldName, fieldType, htmlValue, $template, attrValue;
+        this._fetchInlineChromeTags();
+    },
 
-            if (!REGEX.test(attr.name)) {
-                return;
-            }
-
-            privateAttrs.push(attr);
-
-            attrValue = decodeURIComponent(attr.value);
-            match = attr.name.match(REGEX);
-
-            [fieldType, fieldName] = [match[1], _.camelCase(match[2])];
-
-            if (beeCore.isExperienceEditor) {
-                $template = $(this.$options.template);
-                htmlValue = $(`<div style="display: none;"><ee-${fieldType} map="${fieldName}">${attrValue}</ee-${fieldType}></div>`);
-
-                if (this.$options.template instanceof DocumentFragment) {
-                    if ($template.children().length === 1) {
-                        $template.children().prepend(htmlValue);
-                    } else {
-                        $template.prepend(htmlValue);
-                    }
-                } else {
-                    if ($template.length === 1) {
-                        $template.prepend(htmlValue);
-                    } else {
-                        $template = htmlValue.add($template);
-                    }
-
-                    this.$options.template = $('<div/>').append($template).html();
-                }
-            } else {
-                attrValue = Vue.component(`ee-${fieldType}`).options.methods.normalizeValue(attrValue);
-                Vue.set(this.$data, fieldName, attrValue);
-            }
-        });
-
-        _.each(privateAttrs, attr => el.removeAttributeNode(attr));
+    compiled (){
+        this._embedInlineChromeTags();
     },
 
     ready () {
@@ -83,6 +49,53 @@ export default Vue.component('ee-rendering', Chrome.extend({
     },
 
     methods: {
+        _fetchInlineChromeTags () {
+            let el = this.$options.el,
+                attrs;
+
+            attrs = _.filter(el.attributes, attr => REGEX.test(attr.name));
+
+            this._inlineChromeTags = _.map(attrs, attr => {
+                let match = attr.name.match(REGEX), type, name;
+
+                [type, name] = [match[1], _.camelCase(match[2])];
+
+                return {
+                    type,
+                    name,
+                    data: decodeURIComponent(attr.value)
+                };
+            });
+
+            _.each(attrs, attr => el.removeAttributeNode(attr));
+        },
+
+        _embedInlineChromeTags () {
+            _.each(this._inlineChromeTags, chromeTag => {
+                let htmlValue, attrValue;
+
+                if (beeCore.isExperienceEditor) {
+                    htmlValue = $(`<div data-name="${chromeTag.name}" style="display: none;">
+                                <ee-${chromeTag.type} map="${chromeTag.name}">${chromeTag.data}</ee-${chromeTag.type}>
+                            </div>`);
+
+                    if (this._isFragment) {
+                        $(this._fragmentStart).after(htmlValue);
+                    } else {
+                        $(this.$el).append(htmlValue);
+                    }
+
+                    this.$compile(htmlValue[0]);
+                } else {
+                    attrValue = Vue.component(`ee-${chromeTag.type}`).options.methods.normalizeValue(chromeTag.data);
+
+                    Vue.set(this.$data, chromeTag.name, attrValue);
+                }
+            });
+
+            this._inlineChromeTags = [];
+        },
+
         getChromeTag () {
             let chromeTag = $(this.$el.previousElementSibling);
 
