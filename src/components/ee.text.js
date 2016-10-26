@@ -6,6 +6,8 @@ import beeCore from 'bee-core/src';
 export default Vue.component('ee-text', Field.extend({
     name: 'TextField',
 
+    template: `<div class="__text__"><slot></slot></div>`,
+
     events: {
         'blur' () {
             this.fetchValue();

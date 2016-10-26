@@ -5,6 +5,8 @@ import beeCore from 'bee-core/src';
 export default Vue.component('ee-field', Chrome.extend({
     name: 'Field',
 
+    template: `<div class="__field__"></div>`,
+
     props: {
         map: {
             type: String
@@ -25,7 +27,7 @@ export default Vue.component('ee-field', Chrome.extend({
         }
     },
 
-    ready () {
+    mounted () {
         if (this._hasChromeTag) {
             this._syncMediator({
                 namespace: 'field',
@@ -38,14 +40,14 @@ export default Vue.component('ee-field', Chrome.extend({
         if (this.map) {
             if (beeCore.isExperienceEditor) {
                 this.$watch('value', (value) => {
-                    Vue.set(this.$parent.$data, this.map, value);
+                    Vue.set(this.$parent.$data.fields, this.map, value);
                 }, {immediate: true});
 
                 this.$parent.$watch(this.map, (value)=> {
                     this.value = value;
                 });
             } else {
-                Vue.set(this.$parent.$data, this.map, this.value);
+                Vue.set(this.$parent.$data.fields, this.map, this.value);
             }
         }
     },

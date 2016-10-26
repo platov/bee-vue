@@ -16,14 +16,20 @@ mixin(_, {each, mixin, camelCase, filter, map});
 export default Vue.component('ee-rendering', Chrome.extend({
     name: 'Rendering',
 
+    data: function () {
+        return {
+            fields: {}
+        }
+    },
+
     created () {
         this._inlineChromeTags = [];
 
-        this._fetchInlineChromeTags();
+        //this._fetchInlineChromeTags();
     },
 
     compiled (){
-        this._embedInlineChromeTags();
+        //this._embedInlineChromeTags();
     },
 
     ready () {

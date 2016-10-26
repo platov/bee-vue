@@ -28,7 +28,7 @@ export default Vue.component('ee-chrome', {
         });
     },
 
-    ready () {
+    mounted () {
         let chromeTag = this.getChromeTag();
 
         this._hasChromeTag = !!(chromeTag && chromeTag.length);
@@ -55,12 +55,23 @@ export default Vue.component('ee-chrome', {
     },
 
     methods: {
+        getAncestorsStack () {
+            let stack = [],
+                component = this;
+
+            stack.push(component);
+
+            while (component = component.$parent) {
+                stack.push(component);
+            }
+        },
+
         /**
          * Handle mediator event
          * @private
          * */
         _mediatorHandler (chrome) {
-            var args, event, action;
+            let args, event, action, ancestorsStack;
 
             if (chrome !== this._chrome) {
                 return;
@@ -69,16 +80,17 @@ export default Vue.component('ee-chrome', {
             args = [].slice.apply(arguments, [0]);
             event = args.pop();
             action = event.match(/:([^:]+?)$/);
+            ancestorsStack = this.getAncestorsStack();
 
             if (!action) {
                 throw 'Chrome._mediatorHandler: wrong event format';
             }
 
+            // Emit on self
             this.$emit(action[1], ...args);
 
-            if (this.$parent) {
-                this.$parent.$dispatch(event, this, ...args);
-            }
+            // Emit on ancestors
+            _.each(ancestorsStack, component => component.$emit(event, this, ...args));
         },
 
         /**

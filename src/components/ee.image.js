@@ -13,7 +13,7 @@ export default Vue.component('ee-image', Field.extend({
 
     methods: {
         fetchValue () {
-            this.value = this.normalizeValue(this.getFragmentChild().filter('img')[0]);
+            this.value = this.normalizeValue($(this.$el).children('img')[0]);
         },
 
         normalizeValue (value) {
