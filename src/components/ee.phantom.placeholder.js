@@ -7,6 +7,7 @@ import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import findIndex from 'lodash/findIndex';
 import beeCore from 'bee-core/src';
+import beeVue from 'bee-vue/src';
 
 let mediator = beeCore.mediator;
 
@@ -27,9 +28,6 @@ export default Vue.component('ee-phantom-placeholder', {
         this.mediatorSubscribers = [];
         this.chrome = void 0;
 
-
-        mediator.once('chromeManager:resetChromes', this.linkChromeInstance);
-
         this.compileTemplate();
 
         this.syncMediator({
@@ -37,12 +35,19 @@ export default Vue.component('ee-phantom-placeholder', {
             events   : ['insertRendering', 'moveRendering', 'popRendering', 'removeRendering']
         });
 
+        mediator.once('chromeManager:resetChromes', this.linkChromeInstance);
+
         this.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
             let id = renderingChrome.controlId(),
                 arr = this.data.renderings,
                 index = _.findIndex(arr, {id});
 
             arr.splice(index, 1);
+        });
+
+        this.$on('before-insertRendering', (placeholderChrome, renderingChrome, position, htmlString) => {
+            let a = beeVue.generate(`<div>${htmlString}</div>`);
+            debugger
         });
     },
 
