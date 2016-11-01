@@ -14,7 +14,7 @@ export default Vue.component('ee-text', Field.extend({
         }
     },
 
-    ready () {
+    mounted () {
         if (!this._hasChromeTag) {
             return;
         }
@@ -35,14 +35,12 @@ export default Vue.component('ee-text', Field.extend({
 
     methods: {
         fetchValue () {
-            let fragmentChildNodes = this.getFragmentChild(),
+            let el = $(this.$el),
                 value;
 
-            if (this._hasChromeTag) {
-                value = $(fragmentChildNodes).filter('.scWebEditInput').text();
-            } else {
-                value = $(fragmentChildNodes).text().trim();
-            }
+            value = this._hasChromeTag
+                ? el.find('.scWebEditInput').text()
+                : el.text().trim();
 
             this.value = this.normalizeValue(value);
         },

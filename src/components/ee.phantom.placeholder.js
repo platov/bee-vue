@@ -7,7 +7,7 @@ import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import findIndex from 'lodash/findIndex';
 import beeCore from 'bee-core/src';
-import beeVue from 'bee-vue/src';
+import act from 'bee-vue/src/act';
 
 let mediator = beeCore.mediator;
 
@@ -38,26 +38,89 @@ export default Vue.component('ee-phantom-placeholder', {
         mediator.once('chromeManager:resetChromes', this.linkChromeInstance);
 
         this.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
-            let id = renderingChrome.controlId(),
-                arr = this.data.renderings,
-                index = _.findIndex(arr, {id});
+            let id = renderingChrome.controlId();
 
-            arr.splice(index, 1);
+            this.removeRendering(id);
         });
 
-        this.$on('before-insertRendering', (placeholderChrome, renderingChrome, position, htmlString) => {
-            let a = beeVue.generate(`<div>${htmlString}</div>`);
-            debugger
+        this.$on('before-insertRendering', (placeholderChrome, htmlString, position) => {
+            let actPart = act.generate($(`<div>${htmlString}</div>`)[0]);
+
+            this.data.renderings.splice(position, 0, ...actPart.renderings);
+        });
+
+        this.$on('insertRendering', (placeholderChrome, renderingChrome) => {
+            renderingChrome._openingMarker.remove();
+            renderingChrome._closingMarker.remove();
+            renderingChrome.element.remove();
+        });
+
+        this.$on('moveRendering', (placeholderChrome, renderingChrome, position) => {
+            let id = renderingChrome.controlId();
+
+            this.moveRendering(id, position - 1);
         });
     },
 
+    beforeUpdate(){
+        this.detachChromeTags();
+        this.detachChildChromeTags();
+    },
+
+    updated () {
+        Vue.nextTick(()=>{
+            this.attachChromeTags();
+            this.attachChildChromeTags();
+            Sitecore.PageModes.ChromeManager.resetChromes();
+        })
+    },
+
+    mounted () {
+        Vue.nextTick(this.attachChromeTags);
+    },
+
     beforeDestroy () {
+        this.detachChromeTags();
+
         _.chain(this.mediatorSubscribers)
             .flatten()
             .each(subscriber => mediator.removeListener(subscriber.event, subscriber.handler));
     },
 
     methods: {
+        removeRendering (id) {
+            let arr = this.data.renderings,
+                index = _.findIndex(arr, {id});
+
+            arr.splice(index, 1);
+        },
+
+        moveRendering(id, positionIndex){
+            let arr = this.data.renderings,
+                itemIndex = _.findIndex(arr, {id});
+
+            arr.splice(positionIndex, 0, arr.splice(itemIndex, 1)[0]);
+        },
+
+        attachChromeTags () {
+            let el = $(this.$el);
+
+            el.prepend(this.data.openTag);
+            el.append(this.data.closeTag);
+        },
+
+        detachChromeTags(){
+            $(this.data.openTag).detach();
+            $(this.data.closeTag).detach();
+        },
+
+        attachChildChromeTags() {
+            _.each(this.$refs.renderings, r => r.attachChromeTags());
+        },
+
+        detachChildChromeTags (){
+            _.each(this.$refs.renderings, r => r.detachChromeTags());
+        },
 
         compileTemplate () {
             let r = Vue.compile(this.data.template);

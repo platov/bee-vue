@@ -166,9 +166,7 @@ export default Vue.component('ee-chrome', {
             let chromeSelector = '.scWebEditInput, code[type="text/sitecore"][kind="open"]',
                 chromeTag;
 
-            chromeTag = this._isFragment
-                ? $(this.getFragmentChild()).filter(chromeSelector)
-                : $(this.$el).children(chromeSelector);
+            chromeTag = $(this.$el).children(chromeSelector);
 
             if (chromeTag.length !== 1) {
                 return null;

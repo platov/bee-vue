@@ -5,10 +5,8 @@ import Field from './ee.field';
 export default Vue.component('ee-image', Field.extend({
     name: 'ImageField',
 
-    events: {
-        'setModified' () {
-            this.fetchValue();
-        }
+    created(){
+        this.$on('setModified', this.fetchValue)
     },
 
     methods: {

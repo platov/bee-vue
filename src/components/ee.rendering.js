@@ -22,14 +22,9 @@ export default Vue.component('ee-rendering', Chrome.extend({
         }
     },
 
-    created () {
-        this._inlineChromeTags = [];
-
-        //this._fetchInlineChromeTags();
-    },
-
-    compiled (){
-        //this._embedInlineChromeTags();
+    mounted () {
+        this._fetchInlineChromeTags();
+        this._embedInlineChromeTags();
     },
 
     ready () {
@@ -56,7 +51,7 @@ export default Vue.component('ee-rendering', Chrome.extend({
 
     methods: {
         _fetchInlineChromeTags () {
-            let el = this.$options.el,
+            let el = this.$el,
                 attrs;
 
             attrs = _.filter(el.attributes, attr => REGEX.test(attr.name));
@@ -77,27 +72,46 @@ export default Vue.component('ee-rendering', Chrome.extend({
         },
 
         _embedInlineChromeTags () {
-            _.each(this._inlineChromeTags, chromeTag => {
-                let htmlValue, attrValue;
+            let self = this;
 
-                if (beeCore.isExperienceEditor) {
-                    htmlValue = $(`<div data-name="${chromeTag.name}" style="display: none;">
-                                <ee-${chromeTag.type} map="${chromeTag.name}">${chromeTag.data}</ee-${chromeTag.type}>
-                            </div>`);
+            if (beeCore.isExperienceEditor) {
+                let inlineComponentsHolder,
+                    inlineComponents = [];
 
-                    if (this._isFragment) {
-                        $(this._fragmentStart).after(htmlValue);
-                    } else {
-                        $(this.$el).append(htmlValue);
-                    }
+                _.each(this._inlineChromeTags, chromeTag => {
+                    inlineComponents.push(`<ee-${chromeTag.type} map="${chromeTag.name}">${chromeTag.data}</ee-${chromeTag.type}>`);
+                });
 
-                    this.$compile(htmlValue[0]);
-                } else {
+                if(inlineComponents.length) {
+                    inlineComponentsHolder = new Vue({
+                        name    : 'inline-components',
+                        template: `<div data-inline-components style="display: none">${inlineComponents.join('')}</div>`,
+                        parent  : this,
+
+                        data(){
+                            return {
+                                fields: {}
+                            }
+                        },
+
+                        created (){
+                            this.fields = self.fields;
+                        }
+                    });
+
+                    inlineComponentsHolder.$mount();
+
+                    this.$el.appendChild(inlineComponentsHolder.$el);
+                }
+            } else {
+                _.each(this._inlineChromeTags, chromeTag => {
+                    let attrValue;
+
                     attrValue = Vue.component(`ee-${chromeTag.type}`).options.methods.normalizeValue(chromeTag.data);
 
                     Vue.set(this.$data, chromeTag.name, attrValue);
-                }
-            });
+                });
+            }
 
             this._inlineChromeTags = [];
         },

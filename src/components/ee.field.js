@@ -19,12 +19,8 @@ export default Vue.component('ee-field', Chrome.extend({
         }
     },
 
-    events: {
-        'chromeAvailable': function () {
-            this._chrome.element.bind("blur", () => this.$emit('blur'));
-            this._chrome.element.bind("keydown", () => this.$emit('keydown'));
-            this._chrome.element.bind("keyup", () => this.$emit('keyup'));
-        }
+    created(){
+        this.$on('chromeAvailable', this.transferKeyEvents)
     },
 
     mounted () {
@@ -36,25 +32,27 @@ export default Vue.component('ee-field', Chrome.extend({
         }
 
         this.fetchValue();
-
-        if (this.map) {
-            if (beeCore.isExperienceEditor) {
-                this.$watch('value', (value) => {
-                    Vue.set(this.$parent.$data.fields, this.map, value);
-                }, {immediate: true});
-
-                this.$parent.$watch(this.map, (value)=> {
-                    this.value = value;
-                });
-            } else {
-                Vue.set(this.$parent.$data.fields, this.map, this.value);
-            }
-        }
+        this.mapValueToParent();
     },
 
     methods: {
         fetchValue () {
             console.warn('[ee.field] `fetchValue` method should be overridden!');
+        },
+
+        mapValueToParent () {
+            if (!this.map) {
+                return;
+            }
+
+            if (beeCore.isExperienceEditor) {
+                this.$watch('value', value => {
+                    Vue.set(this.$parent.$data.fields, this.map, value)
+                }, {immediate: true});
+                this.$parent.$watch(`fields.${this.map}`, value => this.value = value);
+            } else {
+                Vue.set(this.$parent.$data.fields, this.map, this.value);
+            }
         },
 
         normalizeValue (value) {
@@ -64,5 +62,11 @@ export default Vue.component('ee-field', Chrome.extend({
         deNormalizeValue (value) {
             return value;
         },
+        
+        transferKeyEvents () {
+            this._chrome.element.bind("blur", () => this.$emit('blur'));
+            this._chrome.element.bind("keydown", () => this.$emit('keydown'));
+            this._chrome.element.bind("keyup", () => this.$emit('keyup'));
+        }
     }
 }));
