@@ -40,6 +40,9 @@ export default Vue.component('ee-phantom-placeholder', {
         this.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
             let id = renderingChrome.controlId();
 
+            renderingChrome.__element = renderingChrome.element;
+            renderingChrome.element = renderingChrome.element.constructor([]);
+
             this.removeRendering(id);
         });
 

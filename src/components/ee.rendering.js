@@ -25,9 +25,7 @@ export default Vue.component('ee-rendering', Chrome.extend({
     mounted () {
         this._fetchInlineChromeTags();
         this._embedInlineChromeTags();
-    },
 
-    ready () {
         if (!this._hasChromeTag) {
             return;
         }
@@ -35,17 +33,6 @@ export default Vue.component('ee-rendering', Chrome.extend({
         this._syncMediator({
             namespace: 'rendering',
             events   : ['update', 'handleMessage']
-        });
-
-        /**
-         * Destroy Vue instance before Placeholder removes Child Rendering
-         * */
-        this.$parent.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
-            if (renderingChrome !== this._chrome) {
-                return;
-            }
-
-            this.$destroy();
         });
     },
 
