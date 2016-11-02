@@ -1,20 +1,16 @@
 import Vue from 'vue';
 import $ from 'jquery';
-import Field from './ee.field';
+import PhantomChrome from './phantom.chrome'
 
-export default Vue.component('ee-phantom-rendering', {
+export default Vue.component('phantom-rendering', PhantomChrome.extend({
+    name: 'phantom-rendering',
+
     props: ['data'],
 
     data() {
         return {
             fields: {}
         }
-    },
-
-    created () {
-        let r = Vue.compile(this.data.template);
-        this.$options.render = r.render;
-        this.$options.staticRenderFns = r.staticRenderFns;
     },
 
     mounted () {
@@ -36,10 +32,6 @@ export default Vue.component('ee-phantom-rendering', {
         detachChromeTags(){
             $(this.data.openTag).detach();
             $(this.data.closeTag).detach();
-        },
-
-        dispose () {
-            this.$parent.$forceUpdate();
         }
     }
-});
+}));

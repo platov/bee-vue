@@ -6,6 +6,7 @@ import ACT from 'bee-core/src/act';
 mixin(_, {mixin, template});
 
 export default new ACT({
-    placeholderTemplate: _.template('<ee-phantom-placeholder :link="\'${id}\'"></ee-phantom-placeholder>'),
-    renderingTemplate  : _.template('<ee-phantom-rendering v-for="rendering in data.renderings" :key="rendering.id" :data="rendering" ref="renderings"></ee-phantom-rendering>')
+    placeholderTemplate: _.template(`<phantom-placeholder :id="'<%= id %>'"></phantom-placeholder>`),
+    renderingTemplate  : _.template(`<phantom-rendering v-for="rendering in data.renderings" :key="rendering.id" :data="rendering" ref="renderings"></phantom-rendering>`),
+    fieldTemplate      : _.template(`<phantom-field :id="'<%= id %>'"></phantom-field>`)
 });
