@@ -1,12 +1,12 @@
-import _ from "lodash/wrapperLodash";
-import mixin from "lodash/mixin";
-import template from "lodash/template";
+import _ from './utils/lodash';
 import ACT from 'bee-core/src/act';
 
-mixin(_, {mixin, template});
+const PLACEHOLDER_TEMPLATE = `<phantom-placeholder :id="'<%= id %>'"></phantom-placeholder>`;
+const RENDERING_TEMPLATE = `<phantom-rendering v-for="rendering in chromeData.renderings" :key="rendering.id" :chrome-data="rendering" ref="renderings"></phantom-rendering>`;
+const FIELD_TEMPLATE = `<phantom-field :id="'<%= id %>'"></phantom-field>`;
 
 export default new ACT({
-    placeholderTemplate: _.template(`<phantom-placeholder :id="'<%= id %>'"></phantom-placeholder>`),
-    renderingTemplate  : _.template(`<phantom-rendering v-for="rendering in data.renderings" :key="rendering.id" :data="rendering" ref="renderings"></phantom-rendering>`),
-    fieldTemplate      : _.template(`<phantom-field :id="'<%= id %>'"></phantom-field>`)
+    placeholderTemplate: _.template(PLACEHOLDER_TEMPLATE),
+    renderingTemplate  : _.template(RENDERING_TEMPLATE),
+    fieldTemplate      : _.template(FIELD_TEMPLATE)
 });

@@ -5,7 +5,7 @@ import PhantomChrome from './phantom.chrome'
 export default Vue.component('phantom-rendering', PhantomChrome.extend({
     name: 'phantom-rendering',
 
-    props: ['data'],
+    props: ['chromeData'],
 
     data() {
         return {
@@ -22,16 +22,20 @@ export default Vue.component('phantom-rendering', PhantomChrome.extend({
     },
 
     methods: {
+        resolveData(){
+
+        },
+
         attachChromeTags () {
             let el = $(this.$el);
 
-            el.before(this.data.openTag);
-            el.after(this.data.closeTag);
+            el.before(this.chromeData.openTag);
+            el.after(this.chromeData.closeTag);
         },
 
         detachChromeTags(){
-            $(this.data.openTag).detach();
-            $(this.data.closeTag).detach();
+            $(this.chromeData.openTag).detach();
+            $(this.chromeData.closeTag).detach();
         }
     }
 }));

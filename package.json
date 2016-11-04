@@ -1,6 +1,6 @@
 {
   "name": "bee-vue",
-  "version": "1.0.6",
+  "version": "2.0.0",
   "description": "",
   "main": "dist/bee-vue.js",
   "files": [
@@ -15,24 +15,24 @@
     "type": "git",
     "url": "git+https://github.com/platov/bee-vue.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["Sitecore", "Experience Editor", "Vue"],
+  "author": "Alexey Platov",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/platov/bee-vue/issues"
   },
   "homepage": "https://github.com/platov/bee-vue#readme",
   "dependencies": {
-    "bee-core": ">=1.0.5",
-    "lodash": ">=4.0.0",
-    "jquery": ">=2.0.0",
-    "vue": ">=1.0.0"
+    "bee-core": "1.0.5",
+    "lodash": "4.16.6",
+    "jquery": "3.1.1",
+    "vue": "2.0.3"
   },
   "devDependencies": {
-    "babel-core": "^6.14.0",
-    "babel-loader": "^6.2.5",
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.7",
     "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.14.0",
-    "webpack": "^1.13.2"
+    "babel-preset-es2015": "^6.18.0",
+    "webpack": "^1.13.3"
   }
 }

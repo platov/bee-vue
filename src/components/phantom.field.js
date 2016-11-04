@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import $ from 'jquery';
 import PhantomChrome from './phantom.chrome';
 
 export default Vue.component('phantom-field', PhantomChrome.extend({
@@ -21,18 +22,41 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
     },
 
     mounted(){
+        Vue.nextTick(this.attachChromeTags);
+
         this.fetchValue();
+    },
+
+    beforeDestroy () {
+        this.detachChromeTags();
     },
 
     methods: {
         resolveData(){
             let parent = this.getParentPhantom();
 
-            this.data = parent.data[this.link]
+            this.chromeData = parent.chromeData[this.id];
         },
 
-        fetchValue () {
-            this.value = this.$el.innerHTML;
+        fetchValue (chrome) {
+            if ('image' === this.chromeData.fieldType) {
+                this.value = chrome ? chrome.element[0] : this.$el;
+            } else {
+                this.value = this.$el.innerHTML;
+            }
+
+        },
+
+        attachChromeTags () {
+            let el = $(this.$el);
+
+            el.before(this.chromeData.openTag);
+            el.after(this.chromeData.closeTag);
+        },
+
+        detachChromeTags(){
+            $(this.chromeData.openTag).detach();
+            $(this.chromeData.closeTag).detach();
         }
     }
 }));

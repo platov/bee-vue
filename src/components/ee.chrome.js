@@ -1,19 +1,9 @@
 import Vue from 'vue';
 import $ from 'jquery';
-import _ from "lodash/wrapperLodash";
-import mixin from "lodash/mixin";
-import reduce from 'lodash/reduce';
-import each from 'lodash/each';
-import bind from 'lodash/bind';
-import find from 'lodash/find';
-import flatten from 'lodash/flatten';
-import chain from 'lodash/chain';
-import value from "lodash/value";
+import _ from '../utils/lodash';
 import beeCore from 'bee-core/src';
 
 let mediator = beeCore.mediator;
-
-mixin(_, {reduce, each, bind, find, flatten, chain, value, mixin});
 
 export default Vue.component('ee-chrome', {
     name: 'Chrome',

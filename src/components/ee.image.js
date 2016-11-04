@@ -1,21 +1,36 @@
 import Vue from 'vue';
-import $ from 'jquery';
+import _ from '../utils/lodash';
 import Field from './ee.field';
+import beeCore from 'bee-core/src';
 
 export default Vue.component('ee-image', Field.extend({
     name: 'ImageField',
 
-    created(){
-        this.$on('setModified', this.fetchValue)
+    computed: {
+        value () {
+            return this.normalizeValue(this.getRawValue());
+        }
     },
 
     methods: {
-        fetchValue () {
-            this.value = this.normalizeValue($(this.$el).children('img')[0]);
+        getRawValue () {
+            if(beeCore.isExperienceEditor) {
+                let phantomField = _.find(this.$children, {isPhantomComponent: true});
+
+                if(!phantomField) {
+                    console.warn(`[bee-vue] Can't find phantom component`);
+                    return null;
+                }
+
+                return phantomField.value;
+            }
+
+
+            return this.$el;
         },
 
-        normalizeValue (value) {
-            return $(value).attr('src');
+        normalizeValue (img) {
+            return img ? img.src : '';
         }
     }
 }));

@@ -1,21 +1,21 @@
 import Vue from 'vue';
 import $ from 'jquery';
+import _ from '../utils/lodash';
 import Field from './ee.field';
-import beeCore from 'bee-core/src';
 
 export default Vue.component('ee-text', Field.extend({
     name: 'TextField',
 
     template: `<div class="__text__"><slot></slot></div>`,
 
-    events: {
-        'blur' () {
-            this.fetchValue();
+    computed: {
+        value () {
+            return this.normalizeValue(this.getRawValue());
         }
     },
 
     mounted () {
-        if (!this._hasChromeTag) {
+        /*if (!this._hasChromeTag) {
             return;
         }
 
@@ -30,7 +30,7 @@ export default Vue.component('ee-text', Field.extend({
 
             this._chrome.type.fieldValue.val(value);
             this._chrome.type.refreshValue();
-        });
+        });*/
     },
 
     methods: {
@@ -43,6 +43,12 @@ export default Vue.component('ee-text', Field.extend({
                 : el.text().trim();
 
             this.value = this.normalizeValue(value);
+        },
+
+        getRawValue () {
+            let phantomField = _.find(this.$children, item => item.isPhantomComponent);
+
+            return phantomField ? phantomField.value : this.$el.innerHTML;
         },
 
         normalizeValue (value) {

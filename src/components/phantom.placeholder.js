@@ -1,15 +1,8 @@
 import Vue from 'vue';
 import $ from 'jquery';
-import _ from "lodash/wrapperLodash";
-import mixin from "lodash/mixin";
-import each from 'lodash/each';
-import find from 'lodash/find';
-import flatten from 'lodash/flatten';
-import findIndex from 'lodash/findIndex';
+import _ from '../utils/lodash';
 import act from 'bee-vue/src/act';
 import PhantomChrome from './phantom.chrome';
-
-mixin(_, {mixin, each, find, flatten, findIndex});
 
 export default Vue.component('phantom-placeholder', PhantomChrome.extend({
     name: 'phantom-placeholder',
@@ -34,7 +27,7 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         this.$on('before-insertRendering', (placeholderChrome, htmlString, position) => {
             let actPart = act.generate($(`<div>${htmlString}</div>`)[0]);
 
-            this.data.renderings.splice(position, 0, ...actPart.renderings);
+            this.chromeData.renderings.splice(position, 0, ...actPart.renderings);
         });
 
         this.$on('insertRendering', (placeholderChrome, renderingChrome) => {
@@ -75,18 +68,18 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         resolveData(){
             let parent = this.getParentPhantom();
 
-            this.data = parent.data[this.id]
+            this.chromeData = parent.chromeData[this.id]
         },
 
         removeRendering (id) {
-            let arr = this.data.renderings,
+            let arr = this.chromeData.renderings,
                 index = _.findIndex(arr, {id});
 
             arr.splice(index, 1);
         },
 
         moveRendering(id, positionIndex){
-            let arr = this.data.renderings,
+            let arr = this.chromeData.renderings,
                 itemIndex = _.findIndex(arr, {id});
 
             arr.splice(positionIndex, 0, arr.splice(itemIndex, 1)[0]);
@@ -95,13 +88,13 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         attachChromeTags () {
             let el = $(this.$el);
 
-            el.prepend(this.data.openTag);
-            el.append(this.data.closeTag);
+            el.prepend(this.chromeData.openTag);
+            el.append(this.chromeData.closeTag);
         },
 
         detachChromeTags(){
-            $(this.data.openTag).detach();
-            $(this.data.closeTag).detach();
+            $(this.chromeData.openTag).detach();
+            $(this.chromeData.closeTag).detach();
         },
 
         attachChildChromeTags() {

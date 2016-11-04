@@ -1,17 +1,11 @@
 import Vue from 'vue';
 import $ from 'jquery';
-import _ from "lodash/wrapperLodash";
-import mixin from 'lodash/mixin';
-import each from 'lodash/each';
-import camelCase from 'lodash/camelCase';
-import filter from 'lodash/filter';
-import map from 'lodash/map';
+import _ from '../utils/lodash';
 import Chrome from './ee.chrome';
 import beeCore from 'bee-core/src';
+import act from 'bee-vue/src/act';
 
 const REGEX = /^(boolean|number|text|image)-(.+?)$/;
-
-mixin(_, {each, mixin, camelCase, filter, map});
 
 export default Vue.component('ee-rendering', Chrome.extend({
     name: 'Rendering',
@@ -70,15 +64,16 @@ export default Vue.component('ee-rendering', Chrome.extend({
                 });
 
                 if(inlineComponents.length) {
+                    let tree =  act.generate($(`<div data-inline-components style="display: none">${inlineComponents.join('')}</div>`)[0]);
+
                     inlineComponentsHolder = new Vue({
                         name    : 'inline-components',
-                        template: `<div data-inline-components style="display: none">${inlineComponents.join('')}</div>`,
+                        template: tree.template,
                         parent  : this,
 
-                        data(){
-                            return {
-                                fields: {}
-                            }
+                        data: {
+                            chromeData: tree,
+                            fields: {}
                         },
 
                         created (){

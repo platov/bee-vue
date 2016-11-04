@@ -1,23 +1,21 @@
 import Vue from 'vue';
-import _ from "lodash/wrapperLodash";
-import mixin from "lodash/mixin";
-import find from 'lodash/find';
-import chain from 'lodash/chain';
-import flatten from 'lodash/flatten';
-import each from 'lodash/each';
+import _ from '../utils/lodash';
 import beeCore from 'bee-core/src';
 
 let mediator = beeCore.mediator;
-
-mixin(_, {mixin, find, chain, flatten, each});
 
 export default Vue.component('phantom-chrome', {
     name: 'phantom-chrome',
 
     data: function () {
-        return {
-            data: {}
+        let props = this.$options.propsData,
+            data = {};
+
+        if(!props.hasOwnProperty('chromeData')) {
+            data.chromeData = {};
         }
+
+        return data;
     },
 
     created: function () {
@@ -49,7 +47,7 @@ export default Vue.component('phantom-chrome', {
         },
 
         compileTemplate () {
-            let r = Vue.compile(this.data.template);
+            let r = Vue.compile(this.chromeData.template);
 
             this.$options.render = r.render;
             this.$options.staticRenderFns = r.staticRenderFns;
@@ -58,7 +56,7 @@ export default Vue.component('phantom-chrome', {
         getParentPhantom () {
             let component = this;
 
-            while (component = component.$parent) if (component.data) {
+            while (component = component.$parent) if (component.chromeData) {
                 return component;
             }
 
@@ -70,7 +68,7 @@ export default Vue.component('phantom-chrome', {
 
             chromes = Sitecore.PageModes.ChromeManager.chromes();
 
-            return _.find(chromes, c => c.type.controlId() === this.data.id);
+            return _.find(chromes, c => c.type.controlId() === this.chromeData.id);
         },
 
         linkChromeInstance () {
