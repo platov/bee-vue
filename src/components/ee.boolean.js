@@ -12,8 +12,8 @@ export default Vue.component('ee-boolean', TextField.extend({
             return value === 1;
         },
 
-        deNormalizeValue () {
-            return this.value ? 1 : 0;
+        deNormalizeValue (value) {
+            return value ? 1 : 0;
         }
     }
 }));

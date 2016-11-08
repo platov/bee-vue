@@ -142,12 +142,6 @@ export default Vue.component('ee-chrome', {
             return chromeTag.attr('id').replace('_edit', '');
         },
 
-        /**
-         * Get content between start/end fragments (use when VM is `Fragment` type)
-         * */
-        getFragmentChild () {
-            return $(this._fragmentStart).nextUntil(this._fragmentEnd);
-        },
 
         /**
          * Try get chrome tag if it's available

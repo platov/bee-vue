@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import $ from 'jquery';
 import _ from '../utils/lodash';
 import Field from './ee.field';
 import beeCore from 'bee-core/src';
@@ -6,31 +7,44 @@ import beeCore from 'bee-core/src';
 export default Vue.component('ee-image', Field.extend({
     name: 'ImageField',
 
-    computed: {
-        value () {
-            return this.normalizeValue(this.getRawValue());
-        }
-    },
-
     methods: {
         getRawValue () {
-            if(beeCore.isExperienceEditor) {
-                let phantomField = _.find(this.$children, {isPhantomComponent: true});
+            let phantomField;
 
-                if(!phantomField) {
-                    console.warn(`[bee-vue] Can't find phantom component`);
-                    return null;
-                }
-
-                return phantomField.value;
+            if (!beeCore.isExperienceEditor) {
+                return this.$el;
             }
 
+            phantomField = this.getPhantomField();
 
-            return this.$el;
+            return $(phantomField.chromeData.fieldValue)[0];
+        },
+
+        setRawValue(imageString){
+            let phantomField, el;
+
+            el = $(this.$el);
+
+            if (!beeCore.isExperienceEditor) {
+                el.find('img').replaceWith(imageString);
+                return;
+            }
+
+            phantomField = this.getPhantomField();
+
+            phantomField.chromeData.fieldValue = imageString;
         },
 
         normalizeValue (img) {
             return img ? img.src : '';
+        },
+
+        deNormalizeValue(value){
+            let el = this.$el.cloneNode();
+
+            el.src = value;
+
+            return this.$el.outerHTML;
         }
     }
 }));

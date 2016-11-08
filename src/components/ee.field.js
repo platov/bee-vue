@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import _ from '../utils/lodash';
 import Chrome from './ee.chrome';
 import beeCore from 'bee-core/src';
 
@@ -13,6 +14,18 @@ export default Vue.component('ee-field', Chrome.extend({
         }
     },
 
+    computed: {
+        value: {
+            get() {
+                return this.normalizeValue(this.getRawValue());
+            },
+
+            set(value){
+                this.setRawValue(this.deNormalizeValue(value));
+            }
+        }
+    },
+
     created(){
         this.$on('chromeAvailable', this.transferKeyEvents)
     },
@@ -22,15 +35,32 @@ export default Vue.component('ee-field', Chrome.extend({
     },
 
     methods: {
+        getRawValue() {
+
+        },
+
+        setRawValue() {
+
+        },
+
+        getPhantomField(){
+            let phantomField = _.find(this.$children, item => item.isPhantomComponent);
+
+            if(!phantomField) {
+                throw `[bee-vue] Can't find Phantom field.`;
+            }
+
+            return phantomField;
+        },
+
         mapValueToParent () {
             if (!this.map) {
                 return;
             }
 
             if (beeCore.isExperienceEditor) {
-                this.$watch('value', value => {
-                    Vue.set(this.$parent.$data.fields, this.map, value)
-                }, {immediate: true});
+                this.$watch('value', value => Vue.set(this.$parent.$data.fields, this.map, value), {immediate: true});
+
                 this.$parent.$watch(`fields.${this.map}`, value => this.value = value);
             } else {
                 Vue.set(this.$parent.$data.fields, this.map, this.value);

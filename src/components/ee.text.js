@@ -1,6 +1,5 @@
 import Vue from 'vue';
-import $ from 'jquery';
-import _ from '../utils/lodash';
+import beeCore from 'bee-core/src';
 import Field from './ee.field';
 
 export default Vue.component('ee-text', Field.extend({
@@ -8,47 +7,29 @@ export default Vue.component('ee-text', Field.extend({
 
     template: `<div class="__text__"><slot></slot></div>`,
 
-    computed: {
-        value () {
-            return this.normalizeValue(this.getRawValue());
-        }
-    },
+    methods: {
+        getRawValue () {
+            let phantomField;
 
-    mounted () {
-        /*if (!this._hasChromeTag) {
-            return;
-        }
+            if(!beeCore.isExperienceEditor) {
+                return this.$el.innerHTML;
+            }
 
-        this.$watch('value', function () {
-            let value;
+            phantomField = this.getPhantomField();
 
-            if (!this._chrome) {
+            return phantomField.chromeData.fieldValue;
+        },
+
+        setRawValue(value){
+            let phantomField;
+
+            if(!beeCore.isExperienceEditor) {
                 return;
             }
 
-            value = this.deNormalizeValue(this.value);
+            phantomField = this.getPhantomField();
 
-            this._chrome.type.fieldValue.val(value);
-            this._chrome.type.refreshValue();
-        });*/
-    },
-
-    methods: {
-        fetchValue () {
-            let el = $(this.$el),
-                value;
-
-            value = this._hasChromeTag
-                ? el.find('.scWebEditInput').text()
-                : el.text().trim();
-
-            this.value = this.normalizeValue(value);
-        },
-
-        getRawValue () {
-            let phantomField = _.find(this.$children, item => item.isPhantomComponent);
-
-            return phantomField ? phantomField.value : this.$el.innerHTML;
+            phantomField.chromeData.fieldValue = value;
         },
 
         normalizeValue (value) {

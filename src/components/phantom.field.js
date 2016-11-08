@@ -6,25 +6,27 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
     name : 'phantom-field',
     props: ['id'],
 
-    data () {
-        return {
-            value: void 0
-        }
-    },
-
     created (){
+        this._userInput = false;
+
         this.syncMediator({
             namespace: 'field',
             events   : ['setModified', 'persist']
         });
 
-        this.$on('setModified', this.fetchValue);
+        this.$on('setModified', ()=> {
+            this._userInput = true;
+
+            this.fetchValue();
+
+            Vue.nextTick(()=> this._userInput = false);
+        });
     },
 
     mounted(){
         Vue.nextTick(this.attachChromeTags);
 
-        this.fetchValue();
+        this.$watch('chromeData.fieldValue', this.applyValue);
     },
 
     beforeDestroy () {
@@ -38,13 +40,40 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
             this.chromeData = parent.chromeData[this.id];
         },
 
-        fetchValue (chrome) {
-            if ('image' === this.chromeData.fieldType) {
-                this.value = chrome ? chrome.element[0] : this.$el;
-            } else {
-                this.value = this.$el.innerHTML;
+        fetchValue () {
+            this.chromeData.fieldValue = 'image' === this.chromeData.fieldType
+                ? this.$el.outerHTML
+                : this.$el.innerHTML;
+        },
+
+        applyValue (value) {
+            /*
+             * If changes came from user - do not trigger experience editor
+             * */
+            if (this._userInput) {
+
+
+                if ('image' === this.chromeData.fieldType) {
+                    // Just update the link to changed image
+                    this.$el = this.chromeData.openTag.nextElementSibling;
+                }
+
+                return;
             }
 
+            if ('image' === this.chromeData.fieldType) {
+                let newImage = $(value);
+
+                $(this.$el).replaceWith(newImage);
+
+                this.$el = newImage[0];
+            } else {
+                this.$el.innerHTML = value;
+            }
+
+            // Tigger Experience Editor
+            this.chrome.type.fieldValue.val(value);
+            this.chrome.type.refreshValue();
         },
 
         attachChromeTags () {

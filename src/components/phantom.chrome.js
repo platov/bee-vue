@@ -63,6 +63,17 @@ export default Vue.component('phantom-chrome', {
             return null;
         },
 
+        getAncestorPhantoms (){
+            let ancestors = [],
+                component = this;
+
+            while (component = component.$parent) if (component.isPhantomComponent) {
+                ancestors.push(component);
+            }
+
+            return ancestors;
+        },
+
         getChromeInstance () {
             var chromes;
 
@@ -102,11 +113,13 @@ export default Vue.component('phantom-chrome', {
         },
 
         handleMediatorEvent (chrome) {
-            let args, event, action;
+            let args, event, action, ancestors;
 
-            if (chrome !== this.chrome) {
+            if (this.chromeData.id !== chrome.controlId()) {
                 return;
             }
+
+            ancestors = this.getAncestorPhantoms();
 
             args = [].slice.apply(arguments, [0]);
             event = args.pop();
@@ -117,6 +130,8 @@ export default Vue.component('phantom-chrome', {
             }
 
             this.$emit(action[1], ...args);
+
+            _.each(ancestors, c => c.$emit(event, this, ...args))
         },
     }
 });
