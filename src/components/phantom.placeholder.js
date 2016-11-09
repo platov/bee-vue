@@ -49,11 +49,9 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
     },
 
     updated () {
-        Vue.nextTick(()=> {
-            this.attachChromeTags();
-            this.attachChildChromeTags();
-            Sitecore.PageModes.ChromeManager.resetChromes();
-        })
+        this.attachChromeTags();
+        this.attachChildChromeTags();
+        Sitecore.PageModes.ChromeManager.resetChromes();
     },
 
     mounted () {
@@ -83,6 +81,21 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
                 itemIndex = _.findIndex(arr, {id});
 
             arr.splice(positionIndex, 0, arr.splice(itemIndex, 1)[0]);
+        },
+
+        replaceRendering(id, data, async){
+            let arr = this.chromeData.renderings,
+                index = _.findIndex(arr, {id});
+
+            if (async) {
+                arr.splice(index, 1);
+
+                Vue.nextTick(()=> {
+                    arr.splice(index, 0, data);
+                });
+            } else {
+                arr.splice(index, 1, data);
+            }
         },
 
         attachChromeTags () {

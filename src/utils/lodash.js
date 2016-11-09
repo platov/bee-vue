@@ -14,6 +14,21 @@ import reduce from 'lodash/reduce';
 import template from "lodash/template";
 import value from "lodash/value";
 
-mixin(_, {camelCase, chain, each, filter, find, findIndex, flatten, isNaN, map, mixin, reduce, template, value});
+mixin(_, {
+    camelCase,
+    chain,
+    each,
+    filter,
+    find,
+    findIndex,
+    flatten,
+    isNaN,
+    map,
+    mixin,
+    reduce,
+    template,
+    value
+});
+
 
 export default _;

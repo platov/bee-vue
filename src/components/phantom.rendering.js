@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import $ from 'jquery';
 import PhantomChrome from './phantom.chrome'
+import act from 'bee-vue/src/act';
 
 export default Vue.component('phantom-rendering', PhantomChrome.extend({
     name: 'phantom-rendering',
@@ -11,6 +12,14 @@ export default Vue.component('phantom-rendering', PhantomChrome.extend({
         return {
             fields: {}
         }
+    },
+
+    created(){
+        this.syncMediator({
+            namespace: 'rendering',
+            events   : ['update', 'handleMessage', 'endActivation']
+        });
+
     },
 
     mounted () {
