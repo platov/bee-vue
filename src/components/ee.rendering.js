@@ -63,8 +63,8 @@ export default Vue.component('ee-rendering', Chrome.extend({
                     inlineComponents.push(`<ee-${chromeTag.type} map="${chromeTag.name}">${chromeTag.data}</ee-${chromeTag.type}>`);
                 });
 
-                if(inlineComponents.length) {
-                    let tree =  act.generate($(`<div data-inline-components style="display: none">${inlineComponents.join('')}</div>`)[0]);
+                if (inlineComponents.length) {
+                    let tree = act.generate($(`<div data-inline-components style="display: none">${inlineComponents.join('')}</div>`)[0]);
 
                     inlineComponentsHolder = new Vue({
                         name    : 'inline-components',
@@ -73,7 +73,7 @@ export default Vue.component('ee-rendering', Chrome.extend({
 
                         data: {
                             chromeData: tree,
-                            fields: {}
+                            fields    : {}
                         },
 
                         created (){

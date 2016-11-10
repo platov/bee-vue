@@ -41,7 +41,7 @@ export default Vue.component('ee-chrome', {
         }
 
         // Unsubscribe before this VM destroy for prevent memory leak
-        _.chain(this._mediatorSubscribers).flatten().each(subscriber => mediator.removeListener(subscriber.event, subscriber.handler));
+        _.chain(this._mediatorSubscribers).flatten().each(subscriber => mediator.removeListener(subscriber.event, subscriber.handler)).value();
     },
 
     methods: {

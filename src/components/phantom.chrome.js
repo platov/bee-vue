@@ -11,7 +11,7 @@ export default Vue.component('phantom-chrome', {
         let props = this.$options.propsData,
             data = {};
 
-        if(!props.hasOwnProperty('chromeData')) {
+        if (!props.hasOwnProperty('chromeData')) {
             data.chromeData = {};
         }
 
@@ -19,6 +19,8 @@ export default Vue.component('phantom-chrome', {
     },
 
     created: function () {
+        this.$emit('$created');
+
         this.isPhantomComponent = true;
         this.chrome = void 0;
         this.mediatorSubscribers = [];
@@ -35,10 +37,29 @@ export default Vue.component('phantom-chrome', {
         mediator.once('chromeManager:resetChromes', this.linkChromeInstance);
     },
 
+    mounted(){
+        this.$emit('$mounted');
+    },
+
+    beforeUpdate(){
+        this.$emit('$before-update');
+    },
+
+    updated(){
+        this.$emit('$updated');
+    },
+
     beforeDestroy (){
+        this.$emit('$before-destroy');
+
         _.chain(this.mediatorSubscribers)
             .flatten()
-            .each(subscriber => mediator.removeListener(subscriber.event, subscriber.handler));
+            .each(subscriber => mediator.removeListener(subscriber.event, subscriber.handler))
+            .value();
+    },
+
+    destroyed(){
+        this.$emit('$destroyed');
     },
 
     methods: {

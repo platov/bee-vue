@@ -41,6 +41,36 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
 
             this.moveRendering(id, position - 1);
         });
+
+        this.$on('rendering:before-update', (rendering, renderingChrome, data) => {
+            renderingChrome.__scChromes = renderingChrome._openingMarker.data('scChromes');
+            renderingChrome.element = renderingChrome.element.constructor([]);
+            renderingChrome._closingMarker = renderingChrome.element.constructor([]);
+        });
+
+        this.$on('rendering:update', (rendering, renderingChrome, data) => {
+            let html, tree, $sc;
+
+            $sc = renderingChrome.element.constructor;
+
+            if ('string' === typeof data) {
+                html = $(`<div>${data}</div>`)[0];
+            } else {
+                html = $(`<div></div>`).append(data.html.clone())[0];
+            }
+
+            tree = act.generate(html);
+
+            this.replaceRendering(rendering.chromeData.id, tree.renderings[0]);
+
+            this.$once('$updated', ()=> {
+                Vue.nextTick(()=> {
+                    let r = this.getRendering(rendering.chromeData.id);
+
+                    renderingChrome._originalDOMElement = $sc(r.chromeData.openTag);
+                });
+            });
+        });
     },
 
     beforeUpdate(){
@@ -51,7 +81,8 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
     updated () {
         this.attachChromeTags();
         this.attachChildChromeTags();
-        Sitecore.PageModes.ChromeManager.resetChromes();
+
+        Vue.nextTick(()=> Sitecore.PageModes.ChromeManager.resetChromes());
     },
 
     mounted () {
@@ -66,7 +97,11 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         resolveData(){
             let parent = this.getParentPhantom();
 
-            this.chromeData = parent.chromeData[this.id]
+            this.chromeData = parent.chromeData[this.id];
+        },
+
+        getRendering (id) {
+            return _.find(this.$refs.renderings, r => r.chromeData.id === id);
         },
 
         removeRendering (id) {

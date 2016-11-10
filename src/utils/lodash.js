@@ -26,9 +26,9 @@ mixin(_, {
     map,
     mixin,
     reduce,
-    template,
-    value
+    template
 });
 
+_.prototype.value = value;
 
 export default _;
