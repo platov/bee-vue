@@ -84,11 +84,11 @@ export default Vue.component('phantom-chrome', {
             return null;
         },
 
-        getAncestorPhantoms (){
+        getAncestors (){
             let ancestors = [],
                 component = this;
 
-            while (component = component.$parent) if (component.isPhantomComponent) {
+            while (component = component.$parent) {
                 ancestors.push(component);
             }
 
@@ -103,8 +103,15 @@ export default Vue.component('phantom-chrome', {
             return _.find(chromes, c => c.type.controlId() === this.chromeData.id);
         },
 
+
         linkChromeInstance () {
+            let char;
+
             this.chrome = this.getChromeInstance();
+
+            char = this.chrome.type.key().charAt(0).toUpperCase();
+
+            this.$options.name = `[${char}] ${this.chrome.data.displayName}`;
         },
 
         syncMediator (data) {
@@ -140,8 +147,6 @@ export default Vue.component('phantom-chrome', {
                 return;
             }
 
-            ancestors = this.getAncestorPhantoms();
-
             args = [].slice.apply(arguments, [0]);
             event = args.pop();
             action = event.match(/:([^:]+?)$/);
@@ -149,6 +154,8 @@ export default Vue.component('phantom-chrome', {
             if (!action) {
                 throw 'Chrome.handleMediatorEvent: wrong event format';
             }
+
+            ancestors = _.filter(this.getAncestors(), {isPhantomComponent: true});
 
             this.$emit(action[1], ...args);
 

@@ -41,8 +41,8 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
         },
 
         fetchValue () {
-            this.chromeData.fieldValue = 'image' === this.chromeData.fieldType
-                ? this.$el.outerHTML
+            this.chromeData.fieldValue = this.chromeData.isFragment
+                ? this.chromeData.openTag.nextElementSibling.outerHTML
                 : this.$el.innerHTML;
         },
 
@@ -53,7 +53,7 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
             if (this._userInput) {
 
 
-                if ('image' === this.chromeData.fieldType) {
+                if (this.chromeData.isFragment) {
                     // Just update the link to changed image
                     this.$el = this.chromeData.openTag.nextElementSibling;
                 }
@@ -61,7 +61,7 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
                 return;
             }
 
-            if ('image' === this.chromeData.fieldType) {
+            if (this.chromeData.isFragment) {
                 let newImage = $(value);
 
                 $(this.$el).replaceWith(newImage);
@@ -71,7 +71,7 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
                 this.$el.innerHTML = value;
             }
 
-            // Tigger Experience Editor
+            // Trigger Experience Editor
             this.chrome.type.fieldValue.val(value);
             this.chrome.type.refreshValue();
         },

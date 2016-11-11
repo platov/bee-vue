@@ -19,7 +19,6 @@ export default Vue.component('phantom-rendering', PhantomChrome.extend({
             namespace: 'rendering',
             events   : ['update', 'handleMessage', 'endActivation']
         });
-
     },
 
     mounted () {

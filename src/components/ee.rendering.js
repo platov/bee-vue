@@ -19,15 +19,6 @@ export default Vue.component('ee-rendering', Chrome.extend({
     mounted () {
         this._fetchInlineChromeTags();
         this._embedInlineChromeTags();
-
-        if (!this._hasChromeTag) {
-            return;
-        }
-
-        this._syncMediator({
-            namespace: 'rendering',
-            events   : ['update', 'handleMessage']
-        });
     },
 
     methods: {
@@ -96,16 +87,6 @@ export default Vue.component('ee-rendering', Chrome.extend({
             }
 
             this._inlineChromeTags = [];
-        },
-
-        getChromeTag () {
-            let chromeTag = $(this.$el.previousElementSibling);
-
-            if (!chromeTag.is('code[chrometype=rendering][kind=open]')) {
-                return null;
-            }
-
-            return chromeTag;
         }
     }
 }));

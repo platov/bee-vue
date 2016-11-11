@@ -82,7 +82,9 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         this.attachChromeTags();
         this.attachChildChromeTags();
 
-        Vue.nextTick(()=> Sitecore.PageModes.ChromeManager.resetChromes());
+        setTimeout(function(){
+            Sitecore.PageModes.ChromeManager.resetChromes()
+        }, 0)
     },
 
     mounted () {

@@ -11,10 +11,10 @@ export default Vue.component('ee-edit-frame', Chrome.extend({
             return;
         }
 
-        this._syncMediator({
+        /*this._syncMediator({
             namespace: 'editFrame',
             events   : ['updateStart', 'updateEnd']
-        });
+        });*/
     },
 
     methods: {

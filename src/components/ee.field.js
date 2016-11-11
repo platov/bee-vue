@@ -27,7 +27,7 @@ export default Vue.component('ee-field', Chrome.extend({
     },
 
     created(){
-        this.$on('chromeAvailable', this.transferKeyEvents)
+        this._preventTwoWayAssignment = false;
     },
 
     mounted () {
@@ -36,17 +36,17 @@ export default Vue.component('ee-field', Chrome.extend({
 
     methods: {
         getRawValue() {
-
+            // Should be overriden by field type component
         },
 
         setRawValue() {
-
+            // Should be overriden by field type component
         },
 
         getPhantomField(){
             let phantomField = _.find(this.$children, item => item.isPhantomComponent);
 
-            if(!phantomField) {
+            if (!phantomField) {
                 throw `[bee-vue] Can't find Phantom field.`;
             }
 
@@ -58,13 +58,25 @@ export default Vue.component('ee-field', Chrome.extend({
                 return;
             }
 
-            if (beeCore.isExperienceEditor) {
-                this.$watch('value', value => Vue.set(this.$parent.$data.fields, this.map, value), {immediate: true});
-
-                this.$parent.$watch(`fields.${this.map}`, value => this.value = value);
-            } else {
+            if (!beeCore.isExperienceEditor) {
                 Vue.set(this.$parent.$data.fields, this.map, this.value);
+
+                return;
             }
+
+            this.$watch('value', value => {
+                this._preventTwoWayAssignment = true;
+
+                Vue.set(this.$parent.$data.fields, this.map, value);
+
+                Vue.nextTick(() => this._preventTwoWayAssignment = false);
+            }, {immediate: true});
+
+            this.$parent.$watch(`fields.${this.map}`, value => {
+                if (!this._preventTwoWayAssignment) {
+                    this.value = value;
+                }
+            });
         },
 
         normalizeValue (value) {
@@ -73,12 +85,6 @@ export default Vue.component('ee-field', Chrome.extend({
 
         deNormalizeValue (value) {
             return value;
-        },
-
-        transferKeyEvents () {
-            this._chrome.element.bind("blur", () => this.$emit('blur'));
-            this._chrome.element.bind("keydown", () => this.$emit('keydown'));
-            this._chrome.element.bind("keyup", () => this.$emit('keyup'));
         }
     }
 }));

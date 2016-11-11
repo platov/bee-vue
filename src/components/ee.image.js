@@ -40,11 +40,11 @@ export default Vue.component('ee-image', Field.extend({
         },
 
         deNormalizeValue(value){
-            let el = this.$el.cloneNode();
+            let el = this.getPhantomField().$el.cloneNode();
 
             el.src = value;
 
-            return this.$el.outerHTML;
+            return el.outerHTML;
         }
     }
 }));
