@@ -21,10 +21,6 @@ export default Vue.component('phantom-rendering', PhantomChrome.extend({
         });
     },
 
-    mounted () {
-        Vue.nextTick(this.attachChromeTags);
-    },
-
     beforeDestroy () {
         this.detachChromeTags();
     },

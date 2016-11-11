@@ -34,6 +34,15 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
             renderingChrome._openingMarker.remove();
             renderingChrome._closingMarker.remove();
             renderingChrome.element.remove();
+
+            this.$once('$updated', ()=> {
+                Vue.nextTick(()=> {
+                    let r = this.getRendering(renderingChrome.controlId());
+
+                    renderingChrome._originalDOMElement = $sc(r.chromeData.openTag);
+                });
+            });
+
         });
 
         this.$on('moveRendering', (placeholderChrome, renderingChrome, position) => {
@@ -43,7 +52,6 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         });
 
         this.$on('rendering:before-update', (rendering, renderingChrome, data) => {
-            renderingChrome.__scChromes = renderingChrome._openingMarker.data('scChromes');
             renderingChrome.element = renderingChrome.element.constructor([]);
             renderingChrome._closingMarker = renderingChrome.element.constructor([]);
         });
@@ -71,6 +79,13 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
                 });
             });
         });
+
+        this.$once('chrome-available', ()=> {
+            if (!this.chromeData.renderings.length) {
+                this.chrome.type.showEmptyLook();
+            }
+        });
+
     },
 
     beforeUpdate(){
@@ -79,16 +94,21 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
     },
 
     updated () {
-        this.attachChromeTags();
-        this.attachChildChromeTags();
+        // On updated self
+        Vue.nextTick(() => {
+            this.attachChromeTags();
+            this.attachChildChromeTags();
 
-        setTimeout(function(){
-            Sitecore.PageModes.ChromeManager.resetChromes()
-        }, 0)
+            // On updated child
+            Vue.nextTick(()=>{
+                Sitecore.PageModes.ChromeManager.resetChromes()
+            });
+        });
     },
 
     mounted () {
-        Vue.nextTick(this.attachChromeTags);
+        this.attachChromeTags();
+        this.attachChildChromeTags();
     },
 
     beforeDestroy () {

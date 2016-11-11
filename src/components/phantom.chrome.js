@@ -112,6 +112,8 @@ export default Vue.component('phantom-chrome', {
             char = this.chrome.type.key().charAt(0).toUpperCase();
 
             this.$options.name = `[${char}] ${this.chrome.data.displayName}`;
+
+            this.$emit('chrome-available');
         },
 
         syncMediator (data) {
