@@ -1,4 +1,4 @@
-class Cache {
+class RenderingCache {
     constructor() {
         this._cache = {};
     }
@@ -12,4 +12,4 @@ class Cache {
     }
 }
 
-export default new Cache();
+export default new RenderingCache();

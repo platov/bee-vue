@@ -2,7 +2,7 @@ import Vue from 'vue';
 import $ from 'jquery';
 import _ from '../utils/lodash';
 import act from 'bee-vue/src/act';
-import cache from 'bee-vue/src/cache';
+import renderingCache from 'bee-vue/src/renderingCache';
 import PhantomChrome from './phantom.chrome';
 
 export default Vue.component('phantom-placeholder', PhantomChrome.extend({
@@ -45,7 +45,7 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
 
             this.$once('$updated', ()=> {
                 Vue.nextTick(()=> {
-                    let r = this.getRendering(renderingChrome.controlId());
+                    let r = this.getRenderingComponent(renderingChrome.controlId());
 
                     renderingChrome._originalDOMElement = $sc(r.chromeData.openTag);
                 });
@@ -77,7 +77,7 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
         });
 
         this.$on('rendering:update', (rendering, renderingChrome, data) => {
-            let html, tree, $sc, uid, vid, cachedData;
+            let html, tree, $sc, uid, variation, cachedData;
 
             if (!this.getRendering(rendering.chromeData.id)) {
                 return;
@@ -86,9 +86,10 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
             $sc = renderingChrome.element.constructor;
 
             uid = renderingChrome.type.uniqueId();
-            vid = _.find(renderingChrome.type.getVariations(), {isActive: true}).id;
+            variation = _.find(renderingChrome.type.getVariations(), {isActive: true})
+                || _.find(renderingChrome.type.getConditions(), {isActive: true});
 
-            cachedData = cache.get(uid + '$' + vid);
+            cachedData = renderingCache.get(uid + '$' + variation.id);
 
             if (cachedData) {
                 this.replaceRendering(rendering.chromeData.id, cachedData);
@@ -105,26 +106,16 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
 
             this.$once('$updated', ()=> {
                 Vue.nextTick(()=> {
-                    let r = this.getRendering(rendering.chromeData.id);
+                    let r = this.getRenderingComponent(rendering.chromeData.id);
 
                     renderingChrome._originalDOMElement = $sc(r.chromeData.openTag);
                 });
             });
         });
 
-        this.$on('rendering:updateVariationCache', (rendering, renderingChrome) => {
-            let uid, vid, id;
+        this.$on('rendering:updateVariationCache', this.updateRenderingCache('getVariations'));
 
-            if (!this.getRendering(renderingChrome.controlId())) {
-                return;
-            }
-
-            uid = renderingChrome.type.uniqueId();
-            vid = _.find(renderingChrome.type.getVariations(), {isActive: true}).id;
-            id = renderingChrome.controlId();
-
-            cache.set(uid + '$' + vid, _.find(this.chromeData.renderings, {id}));
-        });
+        this.$on('rendering:updateConditionCache', this.updateRenderingCache('getConditions'));
 
 
         this.$once('chrome-available', ()=> {
@@ -162,14 +153,34 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
     },
 
     methods: {
+        updateRenderingCache(action){
+            return (rendering, renderingChrome) => {
+                let uid, vid, id;
+
+                if (!this.getRendering(renderingChrome.controlId())) {
+                    return;
+                }
+
+                uid = renderingChrome.type.uniqueId();
+                vid = _.find(renderingChrome.type[action](), {isActive: true}).id;
+                id = renderingChrome.controlId();
+
+                renderingCache.set(uid + '$' + vid, _.find(this.chromeData.renderings, {id}));
+            }
+        },
+
         resolveData(){
             let parent = this.getParentPhantom();
 
             this.chromeData = parent.chromeData[this.id];
         },
 
-        getRendering (id) {
+        getRenderingComponent (id) {
             return _.find(this.$refs.renderings, r => r.chromeData.id === id);
+        },
+
+        getRendering (id) {
+            return _.find(this.chromeData.renderings, {id});
         },
 
         removeRendering (id) {
