@@ -2,6 +2,7 @@ import Vue from 'vue';
 import $ from 'jquery';
 import _ from '../utils/lodash';
 import act from 'bee-vue/src/act';
+import cache from 'bee-vue/src/cache';
 import PhantomChrome from './phantom.chrome';
 
 export default Vue.component('phantom-placeholder', PhantomChrome.extend({
@@ -15,15 +16,22 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
             events   : ['insertRendering', 'moveRendering', 'popRendering', 'removeRendering']
         });
 
+
+        /**
+         * Handle Rendering removing
+         * */
         this.$on('before-removeRendering', (placeholderChrome, renderingChrome) => {
             let id = renderingChrome.controlId();
 
-            renderingChrome.__element = renderingChrome.element;
             renderingChrome.element = renderingChrome.element.constructor([]);
 
             this.removeRendering(id);
         });
 
+
+        /**
+         * Handle Rendering insertion
+         * */
         this.$on('before-insertRendering', (placeholderChrome, htmlString, position) => {
             let actPart = act.generate($(`<div>${htmlString}</div>`)[0]);
 
@@ -45,31 +53,55 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
 
         });
 
+
+        /**
+         * Handle Rendering moving
+         * */
         this.$on('moveRendering', (placeholderChrome, renderingChrome, position) => {
             let id = renderingChrome.controlId();
 
             this.moveRendering(id, position - 1);
         });
 
+
+        /**
+         * Handle Rendering updating
+         * */
         this.$on('rendering:before-update', (rendering, renderingChrome, data) => {
+            if (!this.getRendering(rendering.chromeData.id)) {
+                return;
+            }
+
             renderingChrome.element = renderingChrome.element.constructor([]);
             renderingChrome._closingMarker = renderingChrome.element.constructor([]);
         });
 
         this.$on('rendering:update', (rendering, renderingChrome, data) => {
-            let html, tree, $sc;
+            let html, tree, $sc, uid, vid, cachedData;
+
+            if (!this.getRendering(rendering.chromeData.id)) {
+                return;
+            }
 
             $sc = renderingChrome.element.constructor;
 
-            if ('string' === typeof data) {
-                html = $(`<div>${data}</div>`)[0];
+            uid = renderingChrome.type.uniqueId();
+            vid = _.find(renderingChrome.type.getVariations(), {isActive: true}).id;
+
+            cachedData = cache.get(uid + '$' + vid);
+
+            if (cachedData) {
+                this.replaceRendering(rendering.chromeData.id, cachedData);
             } else {
-                html = $(`<div></div>`).append(data.html.clone())[0];
+                html = 'string' === typeof data
+                    ? $(`<div>${data}</div>`)[0]
+                    : $(`<div></div>`).append(data.html.clone())[0];
+
+                tree = act.generate(html);
+
+                this.replaceRendering(rendering.chromeData.id, tree.renderings[0]);
             }
 
-            tree = act.generate(html);
-
-            this.replaceRendering(rendering.chromeData.id, tree.renderings[0]);
 
             this.$once('$updated', ()=> {
                 Vue.nextTick(()=> {
@@ -80,12 +112,26 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
             });
         });
 
+        this.$on('rendering:updateVariationCache', (rendering, renderingChrome) => {
+            let uid, vid, id;
+
+            if (!this.getRendering(renderingChrome.controlId())) {
+                return;
+            }
+
+            uid = renderingChrome.type.uniqueId();
+            vid = _.find(renderingChrome.type.getVariations(), {isActive: true}).id;
+            id = renderingChrome.controlId();
+
+            cache.set(uid + '$' + vid, _.find(this.chromeData.renderings, {id}));
+        });
+
+
         this.$once('chrome-available', ()=> {
             if (!this.chromeData.renderings.length) {
                 this.chrome.type.showEmptyLook();
             }
         });
-
     },
 
     beforeUpdate(){
@@ -100,7 +146,7 @@ export default Vue.component('phantom-placeholder', PhantomChrome.extend({
             this.attachChildChromeTags();
 
             // On updated child
-            Vue.nextTick(()=>{
+            Vue.nextTick(()=> {
                 Sitecore.PageModes.ChromeManager.resetChromes()
             });
         });

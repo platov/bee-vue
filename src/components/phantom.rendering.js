@@ -17,7 +17,7 @@ export default Vue.component('phantom-rendering', PhantomChrome.extend({
     created(){
         this.syncMediator({
             namespace: 'rendering',
-            events   : ['update', 'handleMessage', 'endActivation']
+            events   : ['update', 'handleMessage', 'updateVariationCache']
         });
     },
 

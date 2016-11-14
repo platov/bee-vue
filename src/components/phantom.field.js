@@ -24,9 +24,20 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
     },
 
     mounted(){
-        Vue.nextTick(this.attachChromeTags);
+        Vue.nextTick(()=>{
+            this.applyValue();
+            this.attachChromeTags();
+        });
 
-        this.$watch('chromeData.fieldValue', this.applyValue);
+        this.$watch('chromeData.fieldValue', (value)=>{
+            this.applyValue();
+
+            // Trigger Experience Editor
+            if(!this._userInput) {
+                this.chrome.type.fieldValue.val(value);
+                this.chrome.type.refreshValue();
+            }
+        });
     },
 
     beforeDestroy () {
@@ -46,13 +57,13 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
                 : this.$el.innerHTML;
         },
 
-        applyValue (value) {
+        applyValue () {
+            let value = this.chromeData.fieldValue;
+
             /*
              * If changes came from user - do not trigger experience editor
              * */
             if (this._userInput) {
-
-
                 if (this.chromeData.isFragment) {
                     // Just update the link to changed image
                     this.$el = this.chromeData.openTag.nextElementSibling;
@@ -70,10 +81,6 @@ export default Vue.component('phantom-field', PhantomChrome.extend({
             } else {
                 this.$el.innerHTML = value;
             }
-
-            // Trigger Experience Editor
-            this.chrome.type.fieldValue.val(value);
-            this.chrome.type.refreshValue();
         },
 
         attachChromeTags () {
