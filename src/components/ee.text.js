@@ -9,27 +9,19 @@ export default Vue.component('ee-text', Field.extend({
 
     methods: {
         getRawValue () {
-            let phantomField;
-
-            if(!beeCore.isExperienceEditor) {
+            if (!beeCore.isExperienceEditor) {
                 return this.$el.innerHTML;
             }
 
-            phantomField = this.getPhantomField();
-
-            return phantomField.chromeData.fieldValue;
+            return this.$phantom.chromeData.fieldValue;
         },
 
         setRawValue(value){
-            let phantomField;
-
-            if(!beeCore.isExperienceEditor) {
+            if (!beeCore.isExperienceEditor) {
                 return;
             }
 
-            phantomField = this.getPhantomField();
-
-            phantomField.chromeData.fieldValue = value;
+            this.$phantom.chromeData.fieldValue = value;
         },
 
         normalizeValue (value) {

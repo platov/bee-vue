@@ -64,7 +64,7 @@ export default Vue.component('phantom-chrome', {
 
     methods: {
         resolveData(){
-            throw '[bee-vue] Method should be overriden!';
+            throw '[bee-vue] Method should be overridden!';
         },
 
         compileTemplate () {
@@ -157,7 +157,7 @@ export default Vue.component('phantom-chrome', {
                 throw 'Chrome.handleMediatorEvent: wrong event format';
             }
 
-            ancestors = _.filter(this.getAncestors(), {isPhantomComponent: true});
+            ancestors = this.getAncestors();
 
             this.$emit(action[1], ...args);
 

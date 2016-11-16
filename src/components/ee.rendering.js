@@ -18,6 +18,7 @@ export default Vue.component('ee-rendering', Chrome.extend({
 
     mounted () {
         this._fetchInlineChromeTags();
+
         this._embedInlineChromeTags();
     },
 
@@ -87,6 +88,17 @@ export default Vue.component('ee-rendering', Chrome.extend({
             }
 
             this._inlineChromeTags = [];
+        },
+
+        getPhantomComponent(){
+            let component = this.$parent;
+
+            if (!component.isPhantomComponent && 'rendering' === component.chromeData.type) {
+                console.error(`[bee-vue] Can't find related phantom component.`, this);
+                return;
+            }
+
+            return component;
         }
     }
 }));

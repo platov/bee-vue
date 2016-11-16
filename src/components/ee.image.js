@@ -9,19 +9,15 @@ export default Vue.component('ee-image', Field.extend({
 
     methods: {
         getRawValue () {
-            let phantomField;
-
             if (!beeCore.isExperienceEditor) {
                 return this.$el;
             }
 
-            phantomField = this.getPhantomField();
-
-            return $(phantomField.chromeData.fieldValue)[0];
+            return $(this.$phantom.chromeData.fieldValue)[0];
         },
 
         setRawValue(imageString){
-            let phantomField, el;
+            let el;
 
             el = $(this.$el);
 
@@ -30,9 +26,7 @@ export default Vue.component('ee-image', Field.extend({
                 return;
             }
 
-            phantomField = this.getPhantomField();
-
-            phantomField.chromeData.fieldValue = imageString;
+            this.$phantom.chromeData.fieldValue = imageString;
         },
 
         normalizeValue (img) {
@@ -40,7 +34,7 @@ export default Vue.component('ee-image', Field.extend({
         },
 
         deNormalizeValue(value){
-            let el = this.getPhantomField().$el.cloneNode();
+            let el = this.$phantom.$el.cloneNode();
 
             el.src = value;
 

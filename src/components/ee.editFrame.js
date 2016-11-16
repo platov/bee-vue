@@ -18,6 +18,10 @@ export default Vue.component('ee-edit-frame', Chrome.extend({
     },
 
     methods: {
+        getPhantomComponent(){
+
+        },
+
         getControlId () {
             return null;
         },

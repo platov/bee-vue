@@ -36,21 +36,22 @@ export default Vue.component('ee-field', Chrome.extend({
 
     methods: {
         getRawValue() {
-            // Should be overriden by field type component
+            throw '[bee-vue] Method should be overridden!';
         },
 
         setRawValue() {
-            // Should be overriden by field type component
+            throw '[bee-vue] Method should be overridden!';
         },
 
-        getPhantomField(){
-            let phantomField = _.find(this.$children, item => item.isPhantomComponent);
+        getPhantomComponent(){
+            let component = _.find(this.$children, {isPhantomComponent: true});
 
-            if (!phantomField) {
-                throw `[bee-vue] Can't find Phantom field.`;
+            if (!component || 'field' !== component.chromeData.type) {
+                console.error(`[bee-vue] Can't find related phantom component.`);
+                return;
             }
 
-            return phantomField;
+            return component;
         },
 
         mapValueToParent () {
