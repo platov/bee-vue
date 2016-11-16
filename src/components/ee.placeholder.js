@@ -6,17 +6,17 @@ export default Vue.component('ee-placeholder', Chrome.extend({
     name: 'Placeholder',
 
     events: {
-        'insertRendering' () {
-            this.$compile(this.$el.parentNode);
+        'insertRendering' (placeholderChrome, renderingChrome, position) {
+            renderingChrome.element.each((i, v) => this.$compile(v));
 
             Sitecore.PageModes.ChromeManager.resetChromes();
         },
 
-        'rendering:update' (vm) {
-            vm.$destroy();
+        'rendering:update' (renderingComponent, renderingChrome) {
+            renderingComponent.$destroy();
 
             Vue.nextTick(() => {
-                this.$compile(this.$el.parentNode);
+                renderingChrome.element.each((i, v) => this.$compile(v));
 
                 Sitecore.PageModes.ChromeManager.resetChromes();
             });
@@ -43,7 +43,7 @@ export default Vue.component('ee-placeholder', Chrome.extend({
                 ? $(this.$el).next(chromeSelector)
                 : $(this.$el).children(`${chromeSelector}:first-child`);
 
-            if(chromeTag.length !== 1) {
+            if (chromeTag.length !== 1) {
                 return null;
             }
 
